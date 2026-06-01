@@ -1,0 +1,447 @@
+/* =====================
+   Variables
+   ===================== */
+:root {
+  --bg: #ffffff;
+  --surface: #f1f3f4;
+  --text: #202124;
+  --text-muted: #5f6368;
+  --appbar-bg: #ffffff;
+  --appbar-border: #e0e0e0;
+  --year-color: #202124;
+  --month-color: #5f6368;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --dot1: #4285f4;
+  --dot2: #ea4335;
+  --dot3: #fbbc05;
+  --dot4: #34a853;
+}
+
+body.dark {
+  --bg: #1a1a1a;
+  --surface: #2d2d2d;
+  --text: #e8eaed;
+  --text-muted: #9aa0a6;
+  --appbar-bg: #202124;
+  --appbar-border: #3c4043;
+  --year-color: #e8eaed;
+  --month-color: #9aa0a6;
+}
+
+/* =====================
+   Reset
+   ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Roboto', 'Google Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.2s, color 0.2s;
+  min-height: 100vh;
+}
+
+/* =====================
+   Password Gate
+   ===================== */
+.gate {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gate-card {
+  background: var(--surface);
+  border: 1px solid var(--appbar-border);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+
+.gate-logo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 20px;
+}
+
+.gate-title {
+  font-family: 'Google Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.gate-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.gate-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gate-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--appbar-border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.gate-input:focus {
+  border-color: var(--accent);
+}
+
+.gate-error {
+  font-size: 0.82rem;
+  color: #d93025;
+  display: none;
+}
+
+.gate-error.visible {
+  display: block;
+}
+
+.gate-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.gate-btn:hover {
+  opacity: 0.88;
+}
+
+/* =====================
+   App Bar
+   ===================== */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 56px;
+  background: var(--appbar-bg);
+  border-bottom: 1px solid var(--appbar-border);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.appbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Google-style 4-dot logo */
+.appbar-logo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  width: 18px;
+  height: 18px;
+}
+
+.logo-dot {
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+}
+.dot1 { background: var(--dot1); }
+.dot2 { background: var(--dot2); }
+.dot3 { background: var(--dot3); }
+.dot4 { background: var(--dot4); }
+
+.appbar-title {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.icon-btn:hover { background: var(--surface); }
+.icon-btn .material-icons { font-size: 22px; }
+
+/* =====================
+   Main
+   ===================== */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 16px 80px;
+}
+
+/* =====================
+   Year / Month headings
+   ===================== */
+.year-section {
+  margin-bottom: 8px;
+}
+
+.year-heading {
+  font-family: 'Google Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--year-color);
+  padding: 20px 0 8px;
+}
+
+.month-section {
+  margin-bottom: 4px;
+}
+
+.month-heading {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--month-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 0 10px;
+}
+
+/* =====================
+   Day Section
+   ===================== */
+.day-section {
+  margin-bottom: 24px;
+}
+
+.day-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 4px 0 10px;
+  letter-spacing: 0.2px;
+}
+
+/* =====================
+   Masonry Grid
+   ===================== */
+.masonry {
+  columns: 4 220px;
+  column-gap: 4px;
+}
+
+/* =====================
+   Tile (photo/video)
+   ===================== */
+.tile {
+  break-inside: avoid;
+  margin-bottom: 4px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.tile img {
+  width: 100%;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.tile:hover img {
+  transform: scale(1.02);
+}
+
+/* Caption overlay (shows on hover) */
+.tile-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 10px 8px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.tile:hover .tile-overlay {
+  opacity: 1;
+}
+
+.tile-caption {
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* =====================
+   Video tile
+   ===================== */
+.video-wrap {
+  position: relative;
+}
+
+.video-wrap video {
+  width: 100%;
+  display: block;
+}
+
+.play-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.play-btn .material-icons {
+  font-size: 52px;
+  color: rgba(255,255,255,0.9);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+
+/* Make play-btn clickable */
+.video-wrap .play-btn {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Video badge (top-right) */
+.video-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 4px;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+}
+
+.video-badge .material-icons {
+  font-size: 14px;
+  color: #fff;
+}
+
+/* =====================
+   Lightbox
+   ===================== */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.94);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox.active {
+  display: flex;
+}
+
+.lightbox-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.lb-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.lb-caption {
+  margin-top: 12px;
+  color: rgba(255,255,255,0.75);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Lightbox buttons */
+.lb-btn {
+  position: fixed;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.lb-btn:hover { background: rgba(255,255,255,0.22); }
+.lb-btn .material-icons { font-size: 28px; }
+
+.lb-close { top: 16px; right: 16px; }
+.lb-prev  { left: 16px; top: 50%; transform: translateY(-50%); }
+.lb-next  { right: 16px; top: 50%; transform: translateY(-50%); }
+
+/* =====================
+   Responsive
+   ===================== */
+@media (max-width: 900px) {
+  .masonry { columns: 3 180px; }
+}
+
+@media (max-width: 600px) {
+  .masonry { columns: 2 140px; }
+  .lb-prev { left: 4px; }
+  .lb-next { right: 4px; }
+  .main { padding: 8px 8px 60px; }
+}
+
+@media (max-width: 380px) {
+  .masonry { columns: 1; }
+}

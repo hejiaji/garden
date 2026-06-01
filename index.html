@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photos</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <header class="appbar">
+    <div class="appbar-left">
+      <span class="appbar-logo">
+        <span class="logo-dot dot1"></span>
+        <span class="logo-dot dot2"></span>
+        <span class="logo-dot dot3"></span>
+        <span class="logo-dot dot4"></span>
+      </span>
+      <span class="appbar-title">Photos</span>
+    </div>
+    <div class="appbar-right">
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+        <span class="material-icons" id="theme-icon">dark_mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Password Gate -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <div class="gate-logo">
+        <span class="logo-dot dot1"></span>
+        <span class="logo-dot dot2"></span>
+        <span class="logo-dot dot3"></span>
+        <span class="logo-dot dot4"></span>
+      </div>
+      <h2 class="gate-title">Photos</h2>
+      <p class="gate-subtitle">Enter password to continue</p>
+      <form class="gate-form" onsubmit="checkPassword(event)">
+        <input class="gate-input" id="gate-input" type="password" placeholder="Password" autofocus autocomplete="current-password" />
+        <div class="gate-error" id="gate-error">Incorrect password</div>
+        <button class="gate-btn" type="submit">Continue</button>
+      </form>
+    </div>
+  </div>
+
+  <main class="main" id="main" style="display:none"></main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" onclick="closeLightboxOnBackdrop(event)">
+    <div class="lightbox-inner">
+      <button class="lb-btn lb-close" onclick="closeLightbox()"><span class="material-icons">close</span></button>
+      <button class="lb-btn lb-prev" onclick="navigate(-1)"><span class="material-icons">chevron_left</span></button>
+      <button class="lb-btn lb-next" onclick="navigate(1)"><span class="material-icons">chevron_right</span></button>
+      <img class="lb-img" id="lb-img" src="" alt="" />
+      <div class="lb-caption" id="lb-caption"></div>
+    </div>
+  </div>
+
+  <script>
+    // ── Data ───────────────────────────────────────────────
+    const BASE = atob('aHR0cHM6Ly9qZXJlbXktaGUtcGhvdG9zLTE4NTA1MjA1NTQ4NC1hcC1zb3V0aGVhc3QtMi1hbi5zMy5hcC1zb3V0aGVhc3QtMi5hbWF6b25hd3MuY29tLw==');
+
+    const files = [
+      '2016-12-04_16-26-04.jpg','2016-12-05_23-17-13.jpg','2016-12-07_00-24-29.jpg',
+      '2016-12-07_00-24-30.jpg','2016-12-07_00-24-31.jpg','2016-12-07_00-24-32.jpg',
+      '2016-12-08_21-53-42.jpg','2016-12-09_02-48-13.jpg','2016-12-11_13-58-27.jpg',
+      '2016-12-11_14-47-04.jpg','2016-12-12_00-28-46.jpg','2016-12-12_00-28-47.jpg',
+      '2016-12-12_00-28-48.jpg','2016-12-12_00-28-49.jpg','2016-12-13_22-00-15.jpg',
+      '2016-12-14_00-18-53.jpg','2016-12-14_00-18-54.jpg','2016-12-14_00-20-06.jpg',
+      '2016-12-15_22-05-27.jpg','2016-12-15_22-05-28.jpg','2016-12-16_02-38-39.jpg',
+      '2016-12-16_21-32-16.jpg','2016-12-16_21-32-17.jpg','2016-12-17_03-09-30.jpg',
+      '2016-12-17_03-10-27.jpg','2016-12-17_03-10-28.jpg','2016-12-17_03-10-29.jpg',
+      '2016-12-19_01-19-47.jpg','2016-12-19_01-19-48.jpg','2016-12-20_00-24-55.jpg',
+      '2016-12-22_23-10-04.jpg','2016-12-23_21-44-23.jpg','2016-12-23_21-44-24.jpg',
+      '2017-03-11_11-42-32.jpg','2017-04-04_00-21-50.jpg','2017-04-04_00-23-59.jpg',
+      '2017-04-05_21-53-24.jpg','2017-04-07_23-25-44.jpg','2017-04-13_01-48-34.jpg',
+      '2017-04-14_01-59-28.jpg','2017-04-14_15-06-38.jpg','2017-04-14_21-25-41.jpg',
+      '2017-04-14_22-19-40.jpg','2017-04-14_22-21-21.jpg','2017-04-15_01-44-50.jpg',
+      '2017-04-15_09-30-55.jpg','2017-04-15_19-26-47.jpg','2017-04-15_20-06-36.jpg',
+      '2017-04-15_21-14-40.jpg','2017-04-15_21-15-21.jpg','2017-04-15_21-26-17.jpg',
+      '2017-04-15_21-59-18.jpg','2017-04-15_23-06-14.jpg','2017-04-15_23-54-20.jpg',
+      '2017-04-16_00-08-57.jpg','2017-04-16_00-52-44.jpg','2017-04-16_01-07-03.jpg',
+      '2017-04-16_02-40-23.jpg','2017-04-16_02-40-24.jpg','2017-04-16_14-39-42.jpg',
+      '2017-04-17_09-57-34.jpg','2017-04-18_04-01-25.jpg','2017-04-18_04-03-12.jpg',
+      '2017-04-18_21-10-01.jpg','2017-04-19_00-16-15.jpg','2017-04-19_21-07-03.jpg',
+      '2017-04-20_20-10-51.jpg','2017-04-20_20-10-52.jpg','2017-04-20_20-10-53.jpg',
+      '2017-04-20_20-24-27.jpg','2017-04-20_22-00-50.jpg','2017-04-21_17-24-09.jpg',
+      '2017-04-21_17-29-09.jpg','2017-04-21_17-34-09.jpg','2017-04-21_17-39-09.jpg',
+      '2017-04-21_17-44-09.jpg','2017-04-21_17-49-09.jpg','2017-04-21_17-54-09.jpg',
+      '2017-04-21_17-59-09.jpg','2017-04-21_18-04-09.jpg','2017-04-21_18-09-09.jpg',
+      '2017-04-22_18-14-09.jpg','2017-04-22_18-19-09.jpg','2017-04-22_18-24-09.jpg',
+      '2017-04-22_18-29-09.jpg','2017-04-23_18-34-09.jpg','2017-04-23_18-39-09.jpg',
+      '2017-04-23_18-44-09.jpg','2017-04-24_18-49-09.jpg','2017-04-24_18-54-09.jpg',
+      '2017-04-24_18-59-09.jpg','2017-04-24_19-04-09.jpg','2017-04-24_19-09-09.jpg',
+      '2017-04-24_19-14-09.jpg','2017-04-25_19-19-09.jpg','2017-04-25_19-24-09.jpg',
+      '2017-04-25_19-29-09.jpg','2017-04-26_19-34-09.jpg','2017-04-26_19-39-09.jpg',
+      '2017-04-26_19-44-09.jpg','2017-04-27_10-37-56.jpg','2017-04-28_19-49-09.jpg',
+      '2017-04-28_19-54-09.jpg','2017-04-28_19-59-09.jpg','2017-04-28_20-04-09.jpg',
+      '2017-04-29_20-09-09.jpg','2017-04-29_20-14-09.jpg','2017-04-29_20-19-09.jpg',
+      '2017-04-29_20-24-09.jpg','2017-04-29_20-29-09.jpg','2017-04-30_20-34-09.jpg',
+      '2017-04-30_20-39-09.jpg','2017-04-30_20-44-09.jpg','2017-04-30_20-49-09.jpg',
+      '2017-05-02_20-54-09.jpg','2017-05-03_20-59-09.jpg','2017-05-03_21-04-09.jpg',
+      '2017-05-03_21-09-09.jpg','2017-05-03_21-14-09.jpg','2017-05-03_21-19-09.jpg',
+      '2017-05-04_21-24-09.jpg','2017-05-04_21-29-09.jpg','2017-05-06_21-34-09.jpg',
+      '2017-05-06_21-39-09.jpg','2017-05-06_21-44-09.jpg','2017-05-07_21-49-09.jpg',
+      '2017-05-10_21-54-09.jpg','2017-05-10_21-59-09.jpg','2017-05-11_22-04-09.jpg',
+      '2017-05-14_22-09-09.jpg','2017-05-16_22-14-09.jpg','2017-05-16_22-19-09.jpg',
+      '2017-05-16_22-24-09.jpg','2017-05-16_22-29-09.jpg','2017-05-20_22-34-09.jpg',
+      '2017-05-22_22-39-09.jpg','2017-05-23_22-44-09.jpg','2017-05-28_22-49-09.jpg',
+      '2017-05-30_22-54-09.jpg','2017-05-30_22-59-09.jpg','2017-05-30_23-04-09.jpg',
+      '2017-06-03_23-09-09.jpg','2017-06-04_23-14-09.jpg','2017-06-14_23-19-09.jpg',
+      '2017-06-19_23-24-09.jpg','2017-09-20_23-29-09.jpg','2017-11-17_23-34-09.jpg',
+      '2017-12-03_23-39-09.jpg','2017-12-11_23-44-09.jpg','2018-05-28_23-49-09.jpg',
+      '2018-06-13_15-37-02.jpg','2018-06-14_23-54-09.jpg','2018-06-14_23-59-09.jpg',
+      '2018-06-15_00-04-09.jpg','2018-06-15_00-09-09.jpg','2018-06-15_00-14-09.jpg',
+      '2018-06-17_00-29-09.jpg','2018-06-17_16-29-28.mp4','2018-06-17_16-29-29.mp4',
+      '2018-06-23_00-34-09.jpg','2018-06-23_00-39-09.jpg','2018-06-25_00-44-09.jpg',
+    ];
+
+    const MONTH_NAMES = ['January','February','March','April','May','June',
+                         'July','August','September','October','November','December'];
+    const VIDEO_EXTS = new Set(['mp4','mov','avi','webm','mkv']);
+
+    // ── Group: year → month → day → files ─────────────────
+    const grouped = {};
+    for (const f of files) {
+      const [year, month, day] = f.split('_')[0].split('-');
+      grouped[year] = grouped[year] || {};
+      grouped[year][month] = grouped[year][month] || {};
+      grouped[year][month][day] = grouped[year][month][day] || [];
+      grouped[year][month][day].push(f);
+    }
+
+    // ── Render ─────────────────────────────────────────────
+    let allPhotoEls = [];
+
+    function isVideo(f) {
+      return VIDEO_EXTS.has(f.split('.').pop().toLowerCase());
+    }
+
+    function renderTile(f) {
+      const url = BASE + f;
+      const ext = f.split('.').pop().toLowerCase();
+      if (VIDEO_EXTS.has(ext)) {
+        const div = document.createElement('div');
+        div.className = 'tile video';
+        div.innerHTML = `
+          <div class="video-wrap">
+            <video preload="metadata">
+              <source src="${url}" type="video/mp4" />
+            </video>
+            <div class="play-btn"><span class="material-icons">play_circle_filled</span></div>
+            <div class="video-badge"><span class="material-icons">videocam</span></div>
+          </div>
+          <div class="tile-overlay"><span class="tile-caption">${f.split('_')[0]}</span></div>`;
+        div.querySelector('.video-wrap').addEventListener('click', (e) => {
+          const video = div.querySelector('video');
+          const playBtn = div.querySelector('.play-btn');
+          if (video.paused) { video.play(); playBtn.style.opacity = '0'; }
+          else { video.pause(); playBtn.style.opacity = '1'; }
+        });
+        return div;
+      } else {
+        const div = document.createElement('div');
+        div.className = 'tile photo';
+        div.innerHTML = `
+          <img src="${url}" alt="${f}" loading="lazy" />
+          <div class="tile-overlay"><span class="tile-caption">${f.split('_')[0]}</span></div>`;
+        div.addEventListener('click', () => openLightbox(div));
+        allPhotoEls.push(div);
+        return div;
+      }
+    }
+
+    function buildTimeline() {
+      const main = document.getElementById('main');
+      const years = Object.keys(grouped).sort((a, b) => b - a);
+
+      for (const year of years) {
+        const yearSection = document.createElement('section');
+        yearSection.className = 'year-section';
+        yearSection.innerHTML = `<h2 class="year-heading">${year}</h2>`;
+
+        const months = Object.keys(grouped[year]).sort((a, b) => b - a);
+        for (const month of months) {
+          const monthSection = document.createElement('div');
+          monthSection.className = 'month-section';
+          monthSection.innerHTML = `<h3 class="month-heading">${MONTH_NAMES[parseInt(month) - 1]}</h3>`;
+
+          const days = Object.keys(grouped[year][month]).sort((a, b) => b - a);
+          for (const day of days) {
+            const daySection = document.createElement('div');
+            daySection.className = 'day-section';
+
+            const date = new Date(`${year}-${month}-${day}`);
+            const label = date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+            daySection.innerHTML = `<div class="day-label">${label}</div>`;
+
+            const grid = document.createElement('div');
+            grid.className = 'masonry';
+            for (const f of grouped[year][month][day]) {
+              grid.appendChild(renderTile(f));
+            }
+            daySection.appendChild(grid);
+            monthSection.appendChild(daySection);
+          }
+
+          yearSection.appendChild(monthSection);
+        }
+        main.appendChild(yearSection);
+      }
+    }
+
+    // ── Password Gate ──────────────────────────────────────
+    const HASH = 'ed13c4a4c07577293e0776532036d0f82c7fd253936ff4944745acec73ce9e0d';
+
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function checkPassword(e) {
+      e.preventDefault();
+      const input = document.getElementById('gate-input').value;
+      const hash = await sha256(input);
+      if (hash === HASH) {
+        unlock();
+      } else {
+        document.getElementById('gate-error').classList.add('visible');
+        document.getElementById('gate-input').value = '';
+        document.getElementById('gate-input').focus();
+      }
+    }
+
+    function unlock() {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('main').style.display = '';
+      buildTimeline();
+    }
+
+    // ── Theme ──────────────────────────────────────────────
+    const themeIcon = document.getElementById('theme-icon');
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle('dark');
+      themeIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+      themeIcon.textContent = 'light_mode';
+    }
+
+    // ── Lightbox ───────────────────────────────────────────
+    let currentIndex = 0;
+
+    function openLightbox(el) {
+      currentIndex = allPhotoEls.indexOf(el);
+      showPhoto(currentIndex);
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function showPhoto(index) {
+      const el = allPhotoEls[index];
+      const img = el.querySelector('img');
+      const caption = el.querySelector('.tile-caption');
+      document.getElementById('lb-img').src = img.src;
+      document.getElementById('lb-img').alt = img.alt;
+      document.getElementById('lb-caption').textContent = caption ? caption.textContent : '';
+    }
+
+    function navigate(dir) {
+      currentIndex = (currentIndex + dir + allPhotoEls.length) % allPhotoEls.length;
+      showPhoto(currentIndex);
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function closeLightboxOnBackdrop(e) {
+      if (e.target === document.getElementById('lightbox')) closeLightbox();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const lb = document.getElementById('lightbox');
+      if (!lb.classList.contains('active')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') navigate(1);
+      if (e.key === 'ArrowLeft') navigate(-1);
+    });
+  </script>
+
+</body>
+</html>
