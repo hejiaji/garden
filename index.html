@@ -62,7 +62,8 @@
 
   <script>
     // ── Data ───────────────────────────────────────────────
-    const BASE = atob('aHR0cHM6Ly9qZXJlbXktaGUtcGhvdG9zLTE4NTA1MjA1NTQ4NC1hcC1zb3V0aGVhc3QtMi1hbi5zMy5hcC1zb3V0aGVhc3QtMi5hbWF6b25hd3MuY29tLw==');
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMyTz8B29t1v2beF-FN1gOgvqv6QDTrchz-qDEWwAaCY8gfpnzMK7pHOpJ-Mky6UKT/exec';
+    let BASE = '';
 
     const files = [
       '2016-12-04_16-26-04.jpg','2016-12-05_23-17-13.jpg','2016-12-07_00-24-29.jpg',
@@ -143,7 +144,10 @@
     }
 
     function renderTile(f) {
-      const url = BASE + f;
+      // Defensively normalise BASE so a stray space/newline in the
+      // server-provided value can't produce broken URLs.
+      const cleanBase = (BASE || '').trim().replace(/\/+$/, '') + '/';
+      const url = cleanBase + encodeURIComponent(f);
       const ext = f.split('.').pop().toLowerCase();
       if (VIDEO_EXTS.has(ext)) {
         const div = document.createElement('div');
@@ -215,24 +219,46 @@
       }
     }
 
-    // ── Password Gate ──────────────────────────────────────
-    const HASH = 'ed13c4a4c07577293e0776532036d0f82c7fd253936ff4944745acec73ce9e0d';
-
     async function sha256(str) {
       const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    function showGateError(msg) {
+      const err = document.getElementById('gate-error');
+      if (msg) err.textContent = msg;
+      err.classList.add('visible');
+      const input = document.getElementById('gate-input');
+      input.value = '';
+      input.focus();
+    }
+
     async function checkPassword(e) {
       e.preventDefault();
       const input = document.getElementById('gate-input').value;
-      const hash = await sha256(input);
-      if (hash === HASH) {
-        unlock();
-      } else {
-        document.getElementById('gate-error').classList.add('visible');
-        document.getElementById('gate-input').value = '';
-        document.getElementById('gate-input').focus();
+      const submitBtn = document.querySelector('.gate-btn');
+      submitBtn.disabled = true;
+      try {
+        const hash = await sha256(input);
+        // Apps Script Web Apps don't return CORS headers for custom JSON
+        // content-types, so we send as text/plain to avoid a preflight.
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ hash }),
+        });
+        if (!res.ok) throw new Error('Network error');
+        const data = await res.json();
+        if (data && data.ok && data.base) {
+          BASE = data.base;
+          unlock();
+        } else {
+          showGateError('Incorrect password');
+        }
+      } catch (err) {
+        showGateError('Could not verify password. Try again.');
+      } finally {
+        submitBtn.disabled = false;
       }
     }
 
